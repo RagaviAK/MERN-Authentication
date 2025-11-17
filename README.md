@@ -98,8 +98,3 @@ This project is a complete authentication workflow built using the MERN stack. I
 <img width="1919" height="906" alt="Screenshot 2025-09-13 182333" src="https://github.com/user-attachments/assets/b1423646-821b-4d01-a29e-8648acf5a5e9" />
 <img width="1919" height="911" alt="Screenshot 2025-09-13 182408" src="https://github.com/user-attachments/assets/dbc251d4-72c2-401a-83c4-db7112d13baa" />
 
-
-
-
-## Folder Structure (Example)
-
