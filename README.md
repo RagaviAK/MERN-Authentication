@@ -1,81 +1,236 @@
-# MERN Authentication System
+# MERN Authentication & Security Management System
 
-This project is a complete authentication workflow built using the MERN stack. It includes user registration, login, email-based OTP verification, JWT session handling, and password reset functionality. Passwords are securely hashed using bcrypt, and Nodemailer is used to deliver OTPs to users’ inboxes. The backend is structured with modular routes and controllers, and the frontend is built with React for a clean, responsive interface.
+A full-stack authentication and security management system built using the MERN stack. The application implements secure user authentication, email verification, password recovery, multi-device session management, role-based access control (RBAC), an admin dashboard, and audit logging. It follows modern security practices by using HTTP-only cookies, JWT authentication, bcrypt password hashing, and server-side authorization.
 
 ---
 
-## Features
+# Features
+
+## Authentication
 
 ### User Registration
-- Register using name, email, and password  
-- Server-side validation for all inputs  
-- Password hashing with bcrypt  
-- OTP sent to email for verification  
 
-### Login
-- Login using registered email and password  
-- Authentication handled using JSON Web Tokens (JWT)  
-- Access restricted until user verifies their email  
-- Secure token generation and cookie/local storage handling  
+* Register using name, email, and password
+* Server-side input validation
+* Password hashing using bcrypt
+* Automatic welcome email after successful registration
+* Secure JWT generation using HTTP-only cookies
 
-### Email OTP Verification
-- Sends verification OTP using Nodemailer  
-- Verifies user account before enabling login  
-- Prevents unverified users from accessing protected routes  
+### User Login
 
-### Password Reset
-- Request password reset via email  
-- OTP sent to verify identity  
-- New password securely hashed using bcrypt  
-- Ensures secure reset flow without exposing user data  
+* Login with registered email and password
+* Password verification using bcrypt
+* JWT authentication
+* HTTP-only cookie-based authentication
+* Browser and device detection using `ua-parser-js`
+* Automatic session creation on every login
 
-### Protected Routes
-- Middleware to validate JWT tokens  
-- Decodes token to verify user identity  
-- Secure access to restricted endpoints  
+### Logout
 
-### Frontend
-- Built with React.js  
-- React Router for navigation  
-- Responsive and clean UI  
-- Axios used for API communication  
+* Secure logout
+* Session removal from database
+* HTTP-only cookie cleared
 
 ---
 
-## Tech Stack
+## Email Verification
 
-### Frontend
-- React.js  
-- React Router  
-- Axios  
-- CSS  
-
-### Backend
-- Node.js  
-- Express.js  
-- JSON Web Tokens (JWT)  
-- bcrypt for password hashing  
-- Nodemailer for sending OTP emails  
-
-### Database
-- MongoDB  
-- Mongoose  
-
-### Tools
-- Git & GitHub  
-- Postman  
-- VS Code  
+* Generate secure 6-digit OTP
+* Send OTP via Nodemailer
+* OTP expiration support
+* Verify email before granting full account access
 
 ---
 
-## API Endpoints 
+## Password Reset
 
-### Auth Routes
-- **POST** `/api/auth/register` – Create new user  
-- **POST** `/api/auth/verify` – Verify email using OTP  
-- **POST** `/api/auth/login` – Login user and return JWT  
-- **POST** `/api/auth/request-reset` – Request password reset OTP  
-- **POST** `/api/auth/reset-password` – Reset password  
+* Request password reset OTP
+* OTP verification
+* Secure password update
+* Password hashing using bcrypt
+* OTP expiration handling
+
+---
+
+## Multi-Device Session Management
+
+Every successful login creates a separate session.
+
+Each session stores:
+
+* Device Name
+* Browser Name
+* Login Time
+* Last Active Time
+* Session Expiration
+
+Users can:
+
+* View all active sessions
+* Logout the current device
+* Logout any specific device
+* Logout all other active devices
+
+---
+
+## Role-Based Access Control (RBAC)
+
+Supports multiple user roles.
+
+Current roles:
+
+* User
+* Admin
+
+Features:
+
+* Protected admin routes
+* Role-based authorization middleware
+* Dynamic role updates
+* Admin-only APIs
+
+---
+
+## Admin Dashboard
+
+Provides administrators with an overview of the system.
+
+Dashboard Statistics:
+
+* Total Users
+* Verified Users
+* Unverified Users
+* Active Sessions
+
+---
+
+## User Management
+
+Administrators can:
+
+* View all registered users
+* View verification status
+* View assigned roles
+* Change user roles
+
+---
+
+## Audit Logging
+
+Tracks important security-related events throughout the application.
+
+Logged events include:
+
+* User Registration
+* Login
+* Logout
+* Email Verification
+* Password Reset
+* Role Changes
+* Device Logout
+* Logout All Devices
+
+Each audit log records:
+
+* User performing the action
+* Target user
+* Action type
+* Description
+* IP Address
+* User Agent
+* Timestamp
+
+---
+
+## Protected Routes
+
+JWT authentication middleware validates every protected request by:
+
+* Verifying JWT
+* Validating active session
+* Checking session expiration
+* Updating last active timestamp
+
+Unauthorized users are denied access automatically.
+
+---
+
+# Tech Stack
+
+## Frontend
+
+* React.js
+* React Router
+* Axios
+* Tailwind CSS
+
+## Backend
+
+* Node.js
+* Express.js
+* JSON Web Token (JWT)
+* bcrypt
+* Nodemailer
+* ua-parser-js
+
+## Database
+
+* MongoDB
+
+# API Endpoints
+
+## Authentication
+
+| Method | Endpoint                    | Description                   |
+| ------ | --------------------------- | ----------------------------- |
+| POST   | `/api/auth/register`        | Register a new user           |
+| POST   | `/api/auth/login`           | Login user                    |
+| POST   | `/api/auth/logout`          | Logout user                   |
+| POST   | `/api/auth/send-verify-otp` | Send email verification OTP   |
+| POST   | `/api/auth/verify-account`  | Verify email using OTP        |
+| POST   | `/api/auth/pass-reset`      | Request password reset OTP    |
+| POST   | `/api/auth/verify-resetotp` | Verify OTP and reset password |
+| POST   | `/api/auth/is-Auth`         | Verify authentication status  |
+
+## User
+
+| Method | Endpoint         | Description                         |
+| ------ | ---------------- | ----------------------------------- |
+| GET    | `/api/user/data` | Retrieve logged-in user information |
+
+## Sessions
+
+| Method | Endpoint                         | Description              |
+| ------ | -------------------------------- | ------------------------ |
+| GET    | `/api/session/all`               | Get all active sessions  |
+| DELETE | `/api/session/logout/:sessionId` | Logout a specific device |
+| DELETE | `/api/session/logout-all`        | Logout all other devices |
+
+## Admin
+
+| Method | Endpoint                    | Description          |
+| ------ | --------------------------- | -------------------- |
+| GET    | `/api/admin/dashboard`      | Dashboard statistics |
+| GET    | `/api/admin/users`          | Get all users        |
+| PATCH  | `/api/admin/users/:id/role` | Update user role     |
+| GET    | `/api/admin/audit-logs`     | View audit logs      |
+
+---
+
+# Security Features
+
+* JWT Authentication
+* HTTP-only Cookies
+* Password Hashing with bcrypt
+* OTP Expiration
+* Session Expiration
+* Multi-device Session Management
+* Role-Based Access Control (RBAC)
+* Protected Routes
+* Admin Authorization
+* Audit Logging
+
+---
 
 # Output
 
