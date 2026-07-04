@@ -22,9 +22,11 @@ export const AppContextProvider=(props)=>{
         }
        
     }
-    useEffect(()=>{
-        isLoggedIn &&  getUserData();
-    },[])
+    useEffect(() => {
+    if (isLoggedIn) {
+        getUserData();
+    }
+}, [isLoggedIn]);
 
     const value={
         backend,

@@ -43,7 +43,8 @@ const Navbar = () => {
     }
   return (
     <div className='w-full flex justify-between items-center p-4 sm:p-6 sm:px-24 absolute top-0'>
-        <img src={assets.logo} alt="auth-logo" className='w-28 sm:w-32'/>
+      
+        <img src={assets.logo} alt="auth-logo"  onClick={() => navigate('/')} className='w-28 sm:w-32  cursor-pointer'/>
  {loading && (
   <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[2px] z-50">
     <div className="bg-white p-4 rounded-lg shadow-lg">
@@ -58,11 +59,49 @@ const Navbar = () => {
        
         {userData.name[0].toUpperCase()}
         <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black  rounded pt-10'>
-          <ul className='list-none bg-gray-100 m-0 p-2 text-sm'>
-          
-            {!userData.isVerified && <li className='px-2 py-1 cursor-pointer hover:bg-gray-200'onClick={sendVerificationOtp}>Verify email</li>}
-            <li className='px-2 py-1 cursor-pointer hover:bg-gray-200 pr-10' onClick={AccountLoggedOut}>Logout</li>
-          </ul>
+          <ul className="list-none bg-gray-100 m-0 p-2 text-sm rounded shadow-lg min-w-[180px]">
+
+  <li
+    className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+    onClick={() => navigate("/security")}
+  >
+    Security
+  </li>
+
+  {userData.role === "admin" && (
+  <>
+    <li
+      className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+      onClick={() => navigate("/admin")}
+    >
+      Admin Dashboard
+    </li>
+
+    <li
+      className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+      onClick={() => navigate("/audit-logs")}
+    >
+      Audit Logs
+    </li>
+  </>
+)}
+  {!userData.isVerified && (
+    <li
+      className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+      onClick={sendVerificationOtp}
+    >
+      Verify Email
+    </li>
+  )}
+
+  <li
+    className="px-3 py-2 cursor-pointer hover:bg-gray-200"
+    onClick={AccountLoggedOut}
+  >
+    Logout
+  </li>
+
+</ul>
           </div>
         </div>
 
