@@ -177,66 +177,12 @@ Unauthorized users are denied access automatically.
 
 * MongoDB
 
-# API Endpoints
-
-## Authentication
-
-| Method | Endpoint                    | Description                   |
-| ------ | --------------------------- | ----------------------------- |
-| POST   | `/api/auth/register`        | Register a new user           |
-| POST   | `/api/auth/login`           | Login user                    |
-| POST   | `/api/auth/logout`          | Logout user                   |
-| POST   | `/api/auth/send-verify-otp` | Send email verification OTP   |
-| POST   | `/api/auth/verify-account`  | Verify email using OTP        |
-| POST   | `/api/auth/pass-reset`      | Request password reset OTP    |
-| POST   | `/api/auth/verify-resetotp` | Verify OTP and reset password |
-| POST   | `/api/auth/is-Auth`         | Verify authentication status  |
-
-## User
-
-| Method | Endpoint         | Description                         |
-| ------ | ---------------- | ----------------------------------- |
-| GET    | `/api/user/data` | Retrieve logged-in user information |
-
-## Sessions
-
-| Method | Endpoint                         | Description              |
-| ------ | -------------------------------- | ------------------------ |
-| GET    | `/api/session/all`               | Get all active sessions  |
-| DELETE | `/api/session/logout/:sessionId` | Logout a specific device |
-| DELETE | `/api/session/logout-all`        | Logout all other devices |
-
-## Admin
-
-| Method | Endpoint                    | Description          |
-| ------ | --------------------------- | -------------------- |
-| GET    | `/api/admin/dashboard`      | Dashboard statistics |
-| GET    | `/api/admin/users`          | Get all users        |
-| PATCH  | `/api/admin/users/:id/role` | Update user role     |
-| GET    | `/api/admin/audit-logs`     | View audit logs      |
-
----
-
-# Security Features
-
-* JWT Authentication
-* HTTP-only Cookies
-* Password Hashing with bcrypt
-* OTP Expiration
-* Session Expiration
-* Multi-device Session Management
-* Role-Based Access Control (RBAC)
-* Protected Routes
-* Admin Authorization
-* Audit Logging
-
----
 
 # Output
 
 
 ## Home page
-<img width="1918" height="911" alt="Screenshot 2025-09-13 182040" src="https://github.com/user-attachments/assets/204c391b-33f0-4e76-afaa-18057304201f" />
+<img width="1917" height="966" alt="Screenshot 2026-07-04 111535" src="https://github.com/user-attachments/assets/bab9057b-f3c9-4508-b904-15e604f4a545" />
 
 ## Sign Up page
 <img width="1915" height="915" alt="Screenshot 2025-09-13 181455" src="https://github.com/user-attachments/assets/7d5df713-bb89-4498-8261-57a613d246c6" />
@@ -252,4 +198,17 @@ Unauthorized users are denied access automatically.
 <img width="1919" height="911" alt="Screenshot 2025-09-13 182255" src="https://github.com/user-attachments/assets/395a5c38-86ee-46c1-bb0e-8758868ec7cb" />
 <img width="1919" height="906" alt="Screenshot 2025-09-13 182333" src="https://github.com/user-attachments/assets/b1423646-821b-4d01-a29e-8648acf5a5e9" />
 <img width="1919" height="911" alt="Screenshot 2025-09-13 182408" src="https://github.com/user-attachments/assets/dbc251d4-72c2-401a-83c4-db7112d13baa" />
+
+## Security page
+
+<img width="1913" height="970" alt="Screenshot 2026-07-04 111240" src="https://github.com/user-attachments/assets/0deee740-ccbb-4407-b097-29536dd3565e" />
+
+## Audit log page
+<img width="1917" height="961" alt="Screenshot 2026-07-04 111350" src="https://github.com/user-attachments/assets/79fd0778-106b-44b5-ac9e-c3c2c0749108" />
+
+## Admin dashboard
+<img width="1917" height="971" alt="Screenshot 2026-07-04 111309" src="https://github.com/user-attachments/assets/e44594ee-7230-4593-a386-8cdef5aab555" />
+
+
+
 
