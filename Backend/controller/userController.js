@@ -13,13 +13,15 @@ export const getUserInfo = async (req, res) => {
       });
     }
 
-    return res.json({
-      success: true,
-      UserInfo: {
-        name: user.name,
-        isVerified: user.isVerified,
-      },
-    });
+   return res.json({
+  success: true,
+  UserInfo: {
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isVerified: user.isVerified,
+  },
+});
   } catch (error) {
     return res.json({
       success: false,

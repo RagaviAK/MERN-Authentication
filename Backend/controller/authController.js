@@ -1,7 +1,10 @@
 import userModel from "../models/userModels.js";
+import Session from "../models/sessionModels.js";
+import {UAParser} from "ua-parser-js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import transporter from "../config/nodemailer.js";
+import createAuditLog from "../utils/auditLogger.js";
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -23,7 +26,9 @@ export const register = async (req, res) => {
     const user = new userModel({ name, email, password: hashedpassword });
     await user.save();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, {
+    const token = jwt.sign({ id: user._id,
+      role: user.role,
+     }, process.env.JWT_SECRETKEY, {
       expiresIn: "1h",
     });
 
@@ -42,9 +47,18 @@ export const register = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
+    await createAuditLog({
+  performedBy: user._id,
+  action: "REGISTER",
+  targetUser: user._id,
+  details: "New user account created",
+  ipAddress: req.ip,
+  userAgent: req.headers["user-agent"],
+});
 
     return res.json({
       success: true,
+      message:"SignUp successfully"
     });
   } catch (error) {
     return res.json({
@@ -55,39 +69,88 @@ export const register = async (req, res) => {
 };
 export const login = async (req, res) => {
   const { email, password } = req.body;
+
   if (!email || !password) {
     return res.json({
       success: false,
       message: "Field is missing",
     });
   }
+
   try {
     const userExist = await userModel.findOne({ email });
+
     if (!userExist) {
       return res.json({
         success: false,
         message: "User was not found",
       });
     }
+
     const match = await bcrypt.compare(password, userExist.password);
+
     if (!match) {
       return res.json({
         success: false,
         message: "Invalid password",
       });
     }
-    const token = jwt.sign({ id: userExist._id }, process.env.JWT_SECRETKEY, {
-      expiresIn: "1h",
+
+    // Detect Browser & Device
+    const parser = new UAParser(req.headers["user-agent"]);
+    const result = parser.getResult();
+
+    const browserName = result.browser.name || "Unknown Browser";
+
+    let deviceName = "Desktop";
+
+    if (result.device.type === "mobile") {
+      deviceName = "Mobile";
+    } else if (result.device.type === "tablet") {
+      deviceName = "Tablet";
+    }
+
+    // Create Session
+    const session = await Session.create({
+      userId: userExist._id,
+      deviceName,
+      browserName,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     });
 
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: userExist._id,
+        sessionId: session._id,
+          role: userExist.role,
+
+      },
+      process.env.JWT_SECRETKEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    // Send Cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV == "production",
       sameSite: process.env.NODE_ENV == "production" ? "none" : "strict",
       maxAge: 60 * 60 * 1000,
     });
+    await createAuditLog({
+  performedBy: userExist._id,
+  action: "LOGIN",
+  targetUser: userExist._id,
+  details: "User logged in",
+  ipAddress: req.ip,
+  userAgent: req.headers["user-agent"],
+});
+
     return res.json({
       success: true,
+      message: "Login Successful",
     });
   } catch (error) {
     return res.json({
@@ -99,21 +162,24 @@ export const login = async (req, res) => {
 
 export const logOut = async (req, res) => {
   try {
+    await Session.findByIdAndDelete(req.sessionId);
     res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV == "production",
       sameSite: process.env.NODE_ENV == "production" ? "none" : "strict",
-      maxAge: 60 * 60 * 1000,
     });
-    return res.json({
-      success: true,
-      message: "Logged Out",
-    });
+    await createAuditLog({
+  performedBy: req.userId,
+  action: "LOGOUT",
+  targetUser: req.userId,
+  details: "User logged out",
+  ipAddress: req.ip,
+  userAgent: req.headers["user-agent"],
+});
+    return res.json({ success: true, message: "Logged Out Successfully" });
+    
   } catch (error) {
-    return res.json({
-      success: false,
-      message: error.message,
-    });
+    return res.json({ success: false, message: error.message });
   }
 };
 
@@ -143,7 +209,7 @@ export const sendVerifyOtp = async (req, res) => {
       subject: "Account verification Code",
       text: `Your verification code is ${otp}`,
     };
-
+    
     await transporter.sendMail(mailOptions);
     return res.json({
       success: true,
@@ -194,6 +260,14 @@ export const verification = async (req, res) => {
     user.verifyotp = "";
     user.verifyotpExpiredAt = 0;
     await user.save();
+    await createAuditLog({
+  performedBy: user._id,
+  action: "VERIFY_EMAIL",
+  targetUser: user._id,
+  details: "Email verified successfully",
+  ipAddress: req.ip,
+  userAgent: req.headers["user-agent"],
+});
 
     return res.json({
       success: true,
@@ -300,6 +374,14 @@ export const verifyAndReset = async (req, res) => {
     user.password = hashedpassword;
     user.resetotpExpiredAt = 0;
     await user.save();
+    await createAuditLog({
+  performedBy: user._id,
+  action: "PASSWORD_RESET",
+  targetUser: user._id,
+  details: "Password reset successfully",
+  ipAddress: req.ip,
+  userAgent: req.headers["user-agent"],
+});
 
     return res.json({
       success: true,
